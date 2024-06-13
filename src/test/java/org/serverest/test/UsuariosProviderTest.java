@@ -1,26 +1,28 @@
 package org.serverest.test;
 
-
-import io.restassured.response.Response;
-import org.serverest.client.UsuarioClient;
-import org.serverest.data.provider.UsuarioProvider;
-import org.serverest.dto.UsuarioDTO;
-import org.serverest.dto.UsuarioResponse;
+import org.serverest.UsuarioProvider;
+import org.serverest.UsuarioDTO;
+import org.serverest.specs.SetupSpecs;
 import org.testng.annotations.Test;
 
+import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 
-public class UsuariosProviderTest extends UsuarioClient {
+public class UsuariosProviderTest {
 
     @Test(dataProvider = "UsuarioCamposEmBranco", dataProviderClass = UsuarioProvider.class)
-    public void testUsuariosCamposEmBranco(UsuarioDTO usuario, String campo, Integer statusHttp, String mensagem){
+    public void testUsuariosCamposEmBranco(UsuarioDTO usuario, String keyCampo, int statusHttp, String mensagemDeErro){
 
-       criarUsuario(usuario)
-            .then()
-                .statusCode(statusHttp)
-                .body(campo, is(notNullValue()))
-                .body(campo, equalTo(mensagem))
-       ;
+        given()
+            .spec(SetupSpecs.setupSpec())
+            .body(usuario)
+        .when()
+            .post("/usuarios")
+        .then()
+            .statusCode(statusHttp)
+            .body(keyCampo, is(equalTo(mensagemDeErro)))
+        ;
+
     }
 
 }

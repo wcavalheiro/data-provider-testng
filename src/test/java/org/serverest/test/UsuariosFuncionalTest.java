@@ -1,76 +1,82 @@
 package org.serverest.test;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
-import org.serverest.client.UsuarioClient;
-import org.serverest.data.factory.UsuarioDataFactory;
-import org.serverest.dto.UsuarioDTO;
-import org.serverest.dto.UsuarioResponse;
+import org.serverest.UsuarioDTO;
+import org.serverest.specs.SetupSpecs;
 import org.testng.annotations.Test;
-import org.assertj.core.api.SoftAssertions;
-import static org.testng.AssertJUnit.*;
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.*;
 
-public class UsuariosFuncionalTest extends UsuarioClient{
-    SoftAssertions assertions = new SoftAssertions();
+public class UsuariosFuncionalTest {
+
+        /*{
+            "nome": "Fulano da Silva",
+            "email": "beltrano@qa.com.br",
+            "password": "teste",
+            "administrador": "true"
+        }*/
 
     // Testes funcionais de campos em branco
+
     @Test
     public void testCadastrarUsuarioNomeEmbranco(){
-        UsuarioDTO usuario = UsuarioDataFactory.usuarioNomeEmBranco();
+        UsuarioDTO usuario = new UsuarioDTO(StringUtils.EMPTY, "petter@email.com", "senhaDificil", "false");
 
-        var resultado = criarUsuario(usuario)
-                .then()
-                .statusCode(HttpStatus.SC_BAD_REQUEST)
-                .extract().as(UsuarioResponse.class)
-                ;
-
-        assertNotNull(resultado.getNome());
-        assertEquals("nome não pode ficar em branco", resultado.getNome());
-        assertions.assertAll();
+        given()
+            .spec(SetupSpecs.setupSpec())
+            .body(usuario)
+        .when()
+            .post("/usuarios")
+        .then()
+            .statusCode(HttpStatus.SC_BAD_REQUEST)
+            .body("nome", is(equalTo("nome não pode ficar em branco")))
+        ;
     }
 
     @Test
     public void testCadastrarUsuarioEmailEmBranco(){
-        UsuarioDTO usuario = UsuarioDataFactory.usuarioEmailEmBranco();
+        UsuarioDTO usuario = new UsuarioDTO("Peter", StringUtils.EMPTY, "senhaDificil", "false");
 
-        var resultado = criarUsuario(usuario)
-            .then()
-                .statusCode(HttpStatus.SC_BAD_REQUEST)
-                .extract().as(UsuarioResponse.class)
-            ;
-
-        assertNotNull(resultado.getEmail());
-        assertEquals("email não pode ficar em branco", resultado.getEmail());
-        assertions.assertAll();
+        given()
+            .spec(SetupSpecs.setupSpec())
+            .body(usuario)
+        .when()
+            .post("/usuarios")
+        .then()
+            .statusCode(HttpStatus.SC_BAD_REQUEST)
+            .body("email", is(equalTo("email não pode ficar em branco")))
+        ;
     }
 
     @Test
     public void testCadastrarUsuarioAdministradorEmBranco(){
-        UsuarioDTO usuario = UsuarioDataFactory.usuarioAdministradorEmBranco();
+        UsuarioDTO usuario = new UsuarioDTO("Peter", "petter@email.com", "senhaDificil", StringUtils.EMPTY);
 
-        var resultado = criarUsuario(usuario)
-            .then()
+        given()
+                .spec(SetupSpecs.setupSpec())
+                .body(usuario)
+        .when()
+                .post("/usuarios")
+        .then()
                 .statusCode(HttpStatus.SC_BAD_REQUEST)
-                .extract().as(UsuarioResponse.class)
-            ;
-
-        assertNotNull(resultado.getAdministrador());
-        assertEquals("administrador deve ser 'true' ou 'false'", resultado.getAdministrador());
-        assertions.assertAll();
+                .body("administrador", is(equalTo("administrador deve ser 'true' ou 'false'")))
+        ;
     }
 
     @Test
     public void testCadastrarUsuarioSenhaEmBranco(){
-        UsuarioDTO usuario = UsuarioDataFactory.usuarioSenhaEmBranco();
+        UsuarioDTO usuario = new UsuarioDTO("Peter", "petter@email.com", StringUtils.EMPTY, "false");
 
-        var resultado = criarUsuario(usuario)
-            .then()
-                .statusCode(HttpStatus.SC_BAD_REQUEST)
-                .extract().as(UsuarioResponse.class)
-            ;
-
-        assertNotNull(resultado.getPassword());
-        assertEquals("password não pode ficar em branco", resultado.getPassword());
-        assertions.assertAll();
+        given()
+            .spec(SetupSpecs.setupSpec())
+            .body(usuario)
+        .when()
+            .post("/usuarios")
+        .then()
+            .statusCode(HttpStatus.SC_BAD_REQUEST)
+            .body("password", is(equalTo("password não pode ficar em branco")))
+        ;
     }
 
 }

@@ -1,4 +1,4 @@
-package org.serverest.dto;
+package org.serverest;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
@@ -12,9 +12,4 @@ public class UsuarioDTO {
     private String email;
     private String password;
     private String administrador;
-
-    public UsuarioDTO(String email, String password){
-        this.nome = email;
-        this.password = password;
-    }
 }
